@@ -1,0 +1,245 @@
+state 0 //
+
+    0 $accept: . result
+
+    '('     shift, and goto state 4
+    '-'     shift, and goto state 3
+    number  shift, and goto state 5
+
+    expr    goto state 2
+    result  goto state 1
+
+state 1 // number [$end]
+
+    0 $accept: result .  [$end]
+
+    $end  accept
+
+state 2 // number [$end]
+
+    1 result: expr .  [$end]
+    2 expr: expr . '*' expr  // assoc %left, prec 2
+    3 expr: expr . '/' expr  // assoc %left, prec 2
+    4 expr: expr . '+' expr  // assoc %left, prec 1
+    5 expr: expr . '-' expr  // assoc %left, prec 1
+    6 expr: expr . '^' expr  // assoc %right, prec 3
+
+    $end  reduce using rule 1 (result)
+    '*'   shift, and goto state 7
+    '+'   shift, and goto state 9
+    '-'   shift, and goto state 10
+    '/'   shift, and goto state 8
+    '^'   shift, and goto state 11
+
+state 3 // '-'
+
+    7 expr: '-' . expr  // assoc %precedence, prec 4
+
+    '('     shift, and goto state 4
+    '-'     shift, and goto state 3
+    number  shift, and goto state 5
+
+    expr  goto state 18
+
+state 4 // '('
+
+    8 expr: '(' . expr ')'
+
+    '('     shift, and goto state 4
+    '-'     shift, and goto state 3
+    number  shift, and goto state 5
+
+    expr  goto state 6
+
+state 5 // number
+
+    9 expr: number .  [$end, ')', '*', '+', '-', '/', '^']
+
+    $end  reduce using rule 9 (expr)
+    ')'   reduce using rule 9 (expr)
+    '*'   reduce using rule 9 (expr)
+    '+'   reduce using rule 9 (expr)
+    '-'   reduce using rule 9 (expr)
+    '/'   reduce using rule 9 (expr)
+    '^'   reduce using rule 9 (expr)
+
+state 6 // '(' number [')']
+
+    2 expr: expr . '*' expr  // assoc %left, prec 2
+    3 expr: expr . '/' expr  // assoc %left, prec 2
+    4 expr: expr . '+' expr  // assoc %left, prec 1
+    5 expr: expr . '-' expr  // assoc %left, prec 1
+    6 expr: expr . '^' expr  // assoc %right, prec 3
+    8 expr: '(' expr . ')'
+
+    ')'  shift, and goto state 12
+    '*'  shift, and goto state 7
+    '+'  shift, and goto state 9
+    '-'  shift, and goto state 10
+    '/'  shift, and goto state 8
+    '^'  shift, and goto state 11
+
+state 7 // number '*'
+
+    2 expr: expr '*' . expr  // assoc %left, prec 2
+
+    '('     shift, and goto state 4
+    '-'     shift, and goto state 3
+    number  shift, and goto state 5
+
+    expr  goto state 17
+
+state 8 // number '/'
+
+    3 expr: expr '/' . expr  // assoc %left, prec 2
+
+    '('     shift, and goto state 4
+    '-'     shift, and goto state 3
+    number  shift, and goto state 5
+
+    expr  goto state 16
+
+state 9 // number '+'
+
+    4 expr: expr '+' . expr  // assoc %left, prec 1
+
+    '('     shift, and goto state 4
+    '-'     shift, and goto state 3
+    number  shift, and goto state 5
+
+    expr  goto state 15
+
+state 10 // number '-'
+
+    5 expr: expr '-' . expr  // assoc %left, prec 1
+
+    '('     shift, and goto state 4
+    '-'     shift, and goto state 3
+    number  shift, and goto state 5
+
+    expr  goto state 14
+
+state 11 // number '^'
+
+    6 expr: expr '^' . expr  // assoc %right, prec 3
+
+    '('     shift, and goto state 4
+    '-'     shift, and goto state 3
+    number  shift, and goto state 5
+
+    expr  goto state 13
+
+state 12 // '(' number ')'
+
+    8 expr: '(' expr ')' .  [$end, ')', '*', '+', '-', '/', '^']
+
+    $end  reduce using rule 8 (expr)
+    ')'   reduce using rule 8 (expr)
+    '*'   reduce using rule 8 (expr)
+    '+'   reduce using rule 8 (expr)
+    '-'   reduce using rule 8 (expr)
+    '/'   reduce using rule 8 (expr)
+    '^'   reduce using rule 8 (expr)
+
+state 13 // number '^' number [$end]
+
+    2 expr: expr . '*' expr  // assoc %left, prec 2
+    3 expr: expr . '/' expr  // assoc %left, prec 2
+    4 expr: expr . '+' expr  // assoc %left, prec 1
+    5 expr: expr . '-' expr  // assoc %left, prec 1
+    6 expr: expr . '^' expr  // assoc %right, prec 3
+    6 expr: expr '^' expr .  [$end, ')', '*', '+', '-', '/']  // assoc %right, prec 3
+
+    $end  reduce using rule 6 (expr)
+    ')'   reduce using rule 6 (expr)
+    '*'   reduce using rule 6 (expr)
+    '+'   reduce using rule 6 (expr)
+    '-'   reduce using rule 6 (expr)
+    '/'   reduce using rule 6 (expr)
+    '^'   shift, and goto state 11
+
+state 14 // number '-' number [$end]
+
+    2 expr: expr . '*' expr  // assoc %left, prec 2
+    3 expr: expr . '/' expr  // assoc %left, prec 2
+    4 expr: expr . '+' expr  // assoc %left, prec 1
+    5 expr: expr . '-' expr  // assoc %left, prec 1
+    5 expr: expr '-' expr .  [$end, ')', '+', '-']  // assoc %left, prec 1
+    6 expr: expr . '^' expr  // assoc %right, prec 3
+
+    $end  reduce using rule 5 (expr)
+    ')'   reduce using rule 5 (expr)
+    '*'   shift, and goto state 7
+    '+'   reduce using rule 5 (expr)
+    '-'   reduce using rule 5 (expr)
+    '/'   shift, and goto state 8
+    '^'   shift, and goto state 11
+
+state 15 // number '+' number [$end]
+
+    2 expr: expr . '*' expr  // assoc %left, prec 2
+    3 expr: expr . '/' expr  // assoc %left, prec 2
+    4 expr: expr . '+' expr  // assoc %left, prec 1
+    4 expr: expr '+' expr .  [$end, ')', '+', '-']  // assoc %left, prec 1
+    5 expr: expr . '-' expr  // assoc %left, prec 1
+    6 expr: expr . '^' expr  // assoc %right, prec 3
+
+    $end  reduce using rule 4 (expr)
+    ')'   reduce using rule 4 (expr)
+    '*'   shift, and goto state 7
+    '+'   reduce using rule 4 (expr)
+    '-'   reduce using rule 4 (expr)
+    '/'   shift, and goto state 8
+    '^'   shift, and goto state 11
+
+state 16 // number '/' number [$end]
+
+    2 expr: expr . '*' expr  // assoc %left, prec 2
+    3 expr: expr . '/' expr  // assoc %left, prec 2
+    3 expr: expr '/' expr .  [$end, ')', '*', '+', '-', '/']  // assoc %left, prec 2
+    4 expr: expr . '+' expr  // assoc %left, prec 1
+    5 expr: expr . '-' expr  // assoc %left, prec 1
+    6 expr: expr . '^' expr  // assoc %right, prec 3
+
+    $end  reduce using rule 3 (expr)
+    ')'   reduce using rule 3 (expr)
+    '*'   reduce using rule 3 (expr)
+    '+'   reduce using rule 3 (expr)
+    '-'   reduce using rule 3 (expr)
+    '/'   reduce using rule 3 (expr)
+    '^'   shift, and goto state 11
+
+state 17 // number '*' number [$end]
+
+    2 expr: expr . '*' expr  // assoc %left, prec 2
+    2 expr: expr '*' expr .  [$end, ')', '*', '+', '-', '/']  // assoc %left, prec 2
+    3 expr: expr . '/' expr  // assoc %left, prec 2
+    4 expr: expr . '+' expr  // assoc %left, prec 1
+    5 expr: expr . '-' expr  // assoc %left, prec 1
+    6 expr: expr . '^' expr  // assoc %right, prec 3
+
+    $end  reduce using rule 2 (expr)
+    ')'   reduce using rule 2 (expr)
+    '*'   reduce using rule 2 (expr)
+    '+'   reduce using rule 2 (expr)
+    '-'   reduce using rule 2 (expr)
+    '/'   reduce using rule 2 (expr)
+    '^'   shift, and goto state 11
+
+state 18 // '-' number [$end]
+
+    2 expr: expr . '*' expr  // assoc %left, prec 2
+    3 expr: expr . '/' expr  // assoc %left, prec 2
+    4 expr: expr . '+' expr  // assoc %left, prec 1
+    5 expr: expr . '-' expr  // assoc %left, prec 1
+    6 expr: expr . '^' expr  // assoc %right, prec 3
+    7 expr: '-' expr .  [$end, ')', '*', '+', '-', '/', '^']  // assoc %precedence, prec 4
+
+    $end  reduce using rule 7 (expr)
+    ')'   reduce using rule 7 (expr)
+    '*'   reduce using rule 7 (expr)
+    '+'   reduce using rule 7 (expr)
+    '-'   reduce using rule 7 (expr)
+    '/'   reduce using rule 7 (expr)
+    '^'   reduce using rule 7 (expr)
+
